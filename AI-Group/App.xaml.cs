@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace AI_Group
@@ -13,5 +7,12 @@ namespace AI_Group
     /// </summary>
     public partial class App : Application
     {
+        //protected override void OnStartup(StartupEventArgs e)
+        //{
+        //    base.OnStartup(e);
+        //    var mainWindow = new MainWindow();
+        //    mainWindow.Show();   // 先创建并显示窗口（确保窗口句柄生成）
+        //    mainWindow.Hide();   // 立即隐藏，避免闪烁
+        //}
     }
 }

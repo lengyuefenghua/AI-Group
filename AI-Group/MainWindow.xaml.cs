@@ -34,6 +34,7 @@ namespace AI_Group
                 doc.Save(_aiDataFilePath);
             }
             AddAIToUI();
+
         }
 
 

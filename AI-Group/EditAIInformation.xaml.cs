@@ -17,8 +17,7 @@ namespace AI_Group
         private void AddAIButton_Click(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(AIName.Text) &&
-                !string.IsNullOrEmpty(AIUrl.Text) &&
-                !string.IsNullOrEmpty(AIDescription.Text))
+                !string.IsNullOrEmpty(AIUrl.Text))
             {
                 string[] data = new string[]
                 {
