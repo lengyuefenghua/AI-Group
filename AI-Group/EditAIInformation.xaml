@@ -1,0 +1,20 @@
+<Window x:Class="AI_Group.EditAIInformation"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AI_Group"
+        mc:Ignorable="d"
+        Title="编辑AI信息" Height="500" Width="400" WindowStartupLocation="CenterOwner" >
+    <StackPanel Margin="10">
+        <TextBlock Text="AI Name:" FontWeight="SemiBold"/>
+        <TextBox x:Name="AIName" Margin="0,5,0,15"/>
+        <TextBlock Text="AI URL:" FontWeight="SemiBold"/>
+        <TextBox x:Name="AIUrl" Margin="0,5,0,15"/>
+        <TextBlock Text="AI Logo Url:" FontWeight="SemiBold"/>
+        <TextBox x:Name="AILogoUrl" Margin="0,5,0,15"/>
+        <TextBlock Text="Description:" FontWeight="SemiBold"/>
+        <TextBox x:Name="AIDescription" Margin="0,5,0,15" Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
+        <Button Content="Add AI" Width="100" Height="30" HorizontalAlignment="Center" Click="AddAIButton_Click"/>
+    </StackPanel>
+</Window>
