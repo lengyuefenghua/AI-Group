@@ -1,4 +1,3 @@
-using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using System;
 using System.Collections.Generic;
@@ -19,7 +18,6 @@ namespace AI_Group
         private Dictionary<string, WebView2> _webViewDictLoaded = new Dictionary<string, WebView2>();
         private Dictionary<string, string> _aiUrlDict = new Dictionary<string, string>();
         private string _aiDataFilePath = Path.Combine(Environment.CurrentDirectory, "AIs.xml");
-        private CoreWebView2Environment _env;
         public MainWindow()
         {
             InitializeComponent();
@@ -35,27 +33,15 @@ namespace AI_Group
                 var doc = new XDocument(new XElement("AIs", aiElement));
                 doc.Save(_aiDataFilePath);
             }
-            GetWebView2Environment();
             AddAIToUI();
         }
 
-        private async void GetWebView2Environment()
-        {
-            string cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cache");
-            if (!Directory.Exists(cacheDir))
-            {
-                Directory.CreateDirectory(cacheDir);
-            }
-            _env = await CoreWebView2Environment.CreateAsync(
-                browserExecutableFolder: null,  // 自动查找Edge运行时
-                userDataFolder: cacheDir        // 自定义缓存目录
-            );
-        }
+
 
         private async void AIButton_Click(object sender, RoutedEventArgs e)
         {
             string buttonTag = (string)((Button)sender).Tag;
-
+            WebView2 wv = null;
             //若已经包含则先移出原有控件
             if (MainDockPanel.Children.Count == 1)
             {
@@ -64,80 +50,25 @@ namespace AI_Group
             //判断是否已加载过该webview
             if (_webViewDictUnload.ContainsKey(buttonTag))//表示该webview未加载
             {
-
                 //初始化webview
                 var temp = _webViewDictUnload[buttonTag];
-                if (_env == null)
-                {
-                    try
-                    {
-                        string cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cache");
-                        if (!Directory.Exists(cacheDir)) Directory.CreateDirectory(cacheDir);
-                        _env = await CoreWebView2Environment.CreateAsync(browserExecutableFolder: null, userDataFolder: cacheDir);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("CreateAsync 异常: " + ex);
-                        MessageBox.Show("创建 WebView2 环境失败：" + ex.Message);
-                        return;
-                    }
-                }
-                // 使用超时与异常捕获来防止 await 卡住或异常导致后续行未执行
-                bool initialized = false;
-                try
-                {
-                    initialized = await EnsureCoreWebView2WithTimeoutAsync(temp, _env, TimeSpan.FromSeconds(15));
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("Ensure 调用抛出异常: " + ex);
-                    MessageBox.Show("初始化 WebView2 时出现异常：" + ex.Message);
-                    return;
-                }
-
-                if (!initialized)
-                {
-                    System.Diagnostics.Debug.WriteLine("EnsureCoreWebView2Async 未完成（超时或失败）。");
-                    MessageBox.Show("WebView2 初始化超时或失败，查看输出窗口以获取详细日志。");
-                    return;
-                }
-                // 初始化WebView2时传入环境
-                //await temp.EnsureCoreWebView2Async(_env);
-                //await temp.EnsureCoreWebView2Async(null);
                 //把初始化后的webview移到已加载字典
                 _webViewDictLoaded.Add(buttonTag, temp);
                 _webViewDictUnload.Remove(buttonTag);
+                //获取对应webview
+                wv = temp;
+                //导航到对应URL
+                wv.Source = new Uri(_aiUrlDict[buttonTag]);
             }
-            //获取对应webview
-            var wv = _webViewDictLoaded[buttonTag];
-            //导航到对应URL
-            wv.Source = new Uri(_aiUrlDict[buttonTag]);
+            else//表示该webview已加载
+            {
+                wv = _webViewDictLoaded[buttonTag];
+            }
             //添加到主面板
             MainDockPanel.Children.Add(wv);
 
         }
-        private async System.Threading.Tasks.Task<bool> EnsureCoreWebView2WithTimeoutAsync(WebView2 wv, CoreWebView2Environment env, TimeSpan timeout)
-        {
-            try
-            {
-                var initTask = wv.EnsureCoreWebView2Async(env);
-                var completed = await System.Threading.Tasks.Task.WhenAny(initTask, System.Threading.Tasks.Task.Delay(timeout));
-                if (completed != initTask)
-                {
-                    System.Diagnostics.Debug.WriteLine("EnsureCoreWebView2Async 超时");
-                    return false;
-                }
-                // 等待以抛出可能的异常
-                await initTask;
-                System.Diagnostics.Debug.WriteLine("EnsureCoreWebView2Async 完成");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("EnsureCoreWebView2Async 异常: " + ex);
-                return false;
-            }
-        }
+
         private void AddAIToUI()
         {
             try
@@ -225,7 +156,7 @@ namespace AI_Group
                         finded = true;
                         // 更新已有的 AI 条目
                         existingAI.Element("Url")?.SetValue(url);
-                        existingAI.Element("LogoUrl")?.SetValue("https://icon.bqb.cool/?url=" + logoUrl);
+                        existingAI.Element("LogoUrl")?.SetValue(logoUrl);
                         existingAI.Element("Description")?.SetValue(description);
                         doc.Save(filePath);
                         break;
@@ -337,7 +268,5 @@ namespace AI_Group
                 return false;
             }
         }
-
-
     }
 }
