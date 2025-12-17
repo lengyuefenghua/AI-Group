@@ -4,39 +4,43 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:fa="clr-namespace:FontAwesome.WPF;assembly=FontAwesome.WPF"
   xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+  xmlns:tb="http://www.hardcodet.net/taskbar"
   xmlns:local="clr-namespace:AI_Group"
   mc:Ignorable="d"
   Title="AI Group"
   Height="720"
   Width="1280"
   WindowStartupLocation="CenterScreen"
+    
 >
-    <DockPanel>
+
+    <DockPanel Width="auto" Height="auto">
         <Grid x:Name="MainGrid" ShowGridLines="False">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
+            <Border Grid.Row="1" Background="#f4f4f4"/>
             <!-- 侧边栏：垂直StackPanel（线性排列，方便控制按钮顺序） -->
             <!-- 可选加ScrollViewer，按钮过多时滚动 -->
             <ScrollViewer Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel x:Name="spAIButtons">
                     <!-- 在这里添加按钮 -->
                     <Button Content="+" Height="45" Width="45" FontSize="32" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Style="{StaticResource Normal}" Click="AddAIButton_Click" />
+
                     <!-- 在这里添加按钮 -->
                 </StackPanel>
             </ScrollViewer>
 
             <DockPanel x:Name="MainDockPanel"  Grid.Column="1" Grid.Row="1">
+                <DockPanel.Background>
+                    <ImageBrush/>
+                </DockPanel.Background>
                 <Label Content="欢迎使用 AI Group" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </DockPanel>
-
         </Grid>
+
     </DockPanel>
+
 </Window>

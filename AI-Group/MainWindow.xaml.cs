@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
-
 namespace AI_Group
 {
     /// <summary>
@@ -17,7 +16,7 @@ namespace AI_Group
         private Dictionary<string, WebView2> _webViewDictUnload = new Dictionary<string, WebView2>();
         private Dictionary<string, WebView2> _webViewDictLoaded = new Dictionary<string, WebView2>();
         private Dictionary<string, string> _aiUrlDict = new Dictionary<string, string>();
-        private string _aiDataFilePath = Path.Combine(Environment.CurrentDirectory, "AIs.xml");
+        private string _aiDataFilePath = Path.Combine(Environment.CurrentDirectory, "AI-Group.xml");
         public MainWindow()
         {
             InitializeComponent();
@@ -30,14 +29,11 @@ namespace AI_Group
                     new XElement("LogoUrl", "https://icon.bqb.cool/?url=" + "https://www.doubao.com/chat"),
                     new XElement("Description", "Doubao AI")
                 );
-                var doc = new XDocument(new XElement("AIs", aiElement));
+                var doc = new XDocument(new XElement("Settings", new XElement("AIs", aiElement)));
                 doc.Save(_aiDataFilePath);
             }
             AddAIToUI();
-
         }
-
-
 
         private async void AIButton_Click(object sender, RoutedEventArgs e)
         {
@@ -75,7 +71,7 @@ namespace AI_Group
             try
             {
                 var doc = XDocument.Load(_aiDataFilePath);
-                var aiElements = doc.Root.Elements("AI");
+                var aiElements = doc.Root.Element("AIs")?.Elements("AI");
                 foreach (var aiElement in aiElements)
                 {
                     string name = aiElement.Element("Name")?.Value;
@@ -88,6 +84,9 @@ namespace AI_Group
                         _webViewDictUnload[name] = webView;
                         _aiUrlDict[name] = url;
                         Image logoImage = new Image();
+                        logoImage.Height = 30;
+                        logoImage.Width = 30;
+                        logoImage.Margin = new Thickness(3);
                         var success = SetIcon(logoImage, logoUrl);
 
                         Button aiButton = new Button
@@ -96,8 +95,8 @@ namespace AI_Group
                             ToolTip = description,
                             Margin = new Thickness(5),
                             Tag = name,
-                            Height = 45,
-                            Width = 45,
+                            Height = 40,
+                            Width = 40,
                             Style = this.TryFindResource("Normal") as Style
                         };
                         // 设置默认图标
