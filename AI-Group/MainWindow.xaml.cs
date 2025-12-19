@@ -2,10 +2,12 @@ using Microsoft.Web.WebView2.Wpf;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
+
 namespace AI_Group
 {
     /// <summary>
@@ -16,7 +18,7 @@ namespace AI_Group
         private Dictionary<string, WebView2> _webViewDictUnload = new Dictionary<string, WebView2>();
         private Dictionary<string, WebView2> _webViewDictLoaded = new Dictionary<string, WebView2>();
         private Dictionary<string, string> _aiUrlDict = new Dictionary<string, string>();
-        private string _aiDataFilePath = Path.Combine(Environment.CurrentDirectory, "AI-Group.xml");
+        private string _aiDataFilePath = "AI-Group.xml";
         public MainWindow()
         {
             InitializeComponent();
@@ -26,8 +28,7 @@ namespace AI_Group
                 var aiElement = new XElement("AI",
                     new XElement("Name", "Doubao"),
                     new XElement("Url", "https://www.doubao.com/chat"),
-                    new XElement("LogoUrl", "https://icon.bqb.cool/?url=" + "https://www.doubao.com/chat"),
-                    new XElement("Description", "Doubao AI")
+                    new XElement("LogoUrl", "https://icon.bqb.cool/?url=" + "https://www.doubao.com/chat")
                 );
                 var doc = new XDocument(new XElement("Settings", new XElement("AIs", aiElement)));
                 doc.Save(_aiDataFilePath);
@@ -40,9 +41,11 @@ namespace AI_Group
             string buttonTag = (string)((Button)sender).Tag;
             WebView2 wv = null;
             //若已经包含则先移出原有控件
-            if (MainDockPanel.Children.Count == 1)
+            var chs = MainDockPanel.Children.OfType<UIElement>().ToList();
+            foreach (UIElement ch in chs)
             {
-                MainDockPanel.Children.RemoveAt(0);
+                MainDockPanel.Children.Remove(ch);
+                Console.WriteLine(ch);
             }
             //判断是否已加载过该webview
             if (_webViewDictUnload.ContainsKey(buttonTag))//表示该webview未加载
@@ -55,14 +58,37 @@ namespace AI_Group
                 //获取对应webview
                 wv = temp;
                 //导航到对应URL
-                wv.Source = new Uri(_aiUrlDict[buttonTag]);
+                //先隐藏webview，等待加载完成后再显示
+                wv.Visibility = Visibility.Collapsed;
+                MainDockPanel.Children.Add(wv);
+                MainDockPanel.Children.Add(lblWelcome);
+                lblWelcome.Content = "正在加载 " + _aiUrlDict[buttonTag];
+                await wv.EnsureCoreWebView2Async(null);
+                wv.CoreWebView2.Navigate(_aiUrlDict[buttonTag]);
+
+
+                //等待导航完成事件
+                wv.CoreWebView2.NavigationCompleted += (s1, ev1) =>
+                {
+                    // 可以在这里处理导航完成后的逻辑
+                    //添加到主面板
+                    MainDockPanel.Children.Remove(lblWelcome);
+                    wv.Visibility = Visibility.Visible;
+
+
+                };
+
+
             }
             else//表示该webview已加载
             {
+                var elementsToRemove = MainDockPanel.Children.OfType<WebView2>().ToList();
+
                 wv = _webViewDictLoaded[buttonTag];
+                //添加到主面板
+                MainDockPanel.Children.Add(wv);
             }
-            //添加到主面板
-            MainDockPanel.Children.Add(wv);
+
 
         }
 
@@ -77,7 +103,6 @@ namespace AI_Group
                     string name = aiElement.Element("Name")?.Value;
                     string url = aiElement.Element("Url")?.Value;
                     string logoUrl = aiElement.Element("LogoUrl")?.Value;
-                    string description = aiElement.Element("Description")?.Value;
                     if (!_aiUrlDict.ContainsKey(name))
                     {
                         var webView = new WebView2();
@@ -92,7 +117,7 @@ namespace AI_Group
                         Button aiButton = new Button
                         {
                             Content = logoImage,
-                            ToolTip = description,
+                            ToolTip = name,
                             Margin = new Thickness(5),
                             Tag = name,
                             Height = 40,
@@ -121,8 +146,8 @@ namespace AI_Group
             addNewWebAI.Owner = this;
             Action<string[]> _aiAddedHandler = (data) =>
             {
-                Console.WriteLine($"Name: {data[0]} URL: {data[1]} Logo URL: {data[2]} Description: {data[3]}");
-                var state = AddAIToXML(_aiDataFilePath, data[0], data[1], data[2], data[3]);
+                Console.WriteLine($"Name: {data[0]} URL: {data[1]} Logo URL: {data[2]}");
+                var state = AddAIToXML(_aiDataFilePath, data[0], data[1], data[2]);
             };
             addNewWebAI.OnAIAdded += _aiAddedHandler;
             addNewWebAI.ShowDialog();
@@ -134,39 +159,47 @@ namespace AI_Group
         /// 将 AI 条目追加到用户 AppData 下的 AIs.xml 文件。
         /// 返回 true 表示成功；失败时返回 false
         /// </summary>
-        private bool AddAIToXML(string filePath, string name, string url, string logoUrl, string description)
+        private bool AddAIToXML(string filePath, string name, string url, string logoUrl)
         {
             try
             {
-                //拼接新的 AI 元素
                 var aiElement = new XElement("AI",
                     new XElement("Name", name),
                     new XElement("Url", url),
-                    new XElement("LogoUrl", logoUrl),
-                    new XElement("Description", description)
-                    );
+                    new XElement("LogoUrl", logoUrl)
+                );
+
                 var doc = XDocument.Load(filePath);
-                var root = doc.Element("AIs");
-                var finded = false;
-                // 检查是否已存在同名的 AI 条目,并更新
-                foreach (var existingAI in root.Elements("AI"))
+
+                // 确保 <AIs> 节点存在
+                var aisContainer = doc.Root.Element("AIs");
+                if (aisContainer == null)
+                {
+                    aisContainer = new XElement("AIs");
+                    doc.Root.Add(aisContainer);
+                }
+
+                bool found = false;
+                var existingAIs = aisContainer.Elements("AI");
+
+                foreach (var existingAI in existingAIs)
                 {
                     if (existingAI.Element("Name")?.Value == name)
                     {
-                        finded = true;
-                        // 更新已有的 AI 条目
+                        // 更新现有条目
                         existingAI.Element("Url")?.SetValue(url);
                         existingAI.Element("LogoUrl")?.SetValue(logoUrl);
-                        existingAI.Element("Description")?.SetValue(description);
-                        doc.Save(filePath);
+                        found = true;
                         break;
                     }
                 }
-                if (!finded)
+
+                if (!found)
                 {
-                    root.Add(aiElement);
-                    doc.Save(filePath);
+                    aisContainer.Add(aiElement);
                 }
+
+                doc.Save(filePath);
                 return true;
             }
             catch (Exception ex)

@@ -1,3 +1,9 @@
 <Solution>
-  <Project Path="AI-Group/AI-Group.csproj" Id="df1cab62-f11f-4574-8cd3-f8b7d02dd706" />
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="AI-Group/AI-Group.csproj" Id="df1cab62-f11f-4574-8cd3-f8b7d02dd706">
+    <Platform Solution="Release|x86" Project="x86" />
+  </Project>
 </Solution>

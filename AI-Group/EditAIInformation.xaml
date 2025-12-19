@@ -10,11 +10,13 @@
         <TextBlock Text="AI Name:" FontWeight="SemiBold"/>
         <TextBox x:Name="AIName" Margin="0,5,0,15"/>
         <TextBlock Text="AI URL:" FontWeight="SemiBold"/>
-        <TextBox x:Name="AIUrl" Margin="0,5,0,15"/>
+        <TextBox x:Name="AIUrl" Margin="0,5,0,15" LostFocus="AIUrl_LostFocus"/>
         <TextBlock Text="AI Logo Url:" FontWeight="SemiBold"/>
         <TextBox x:Name="AILogoUrl" Margin="0,5,0,15"/>
-        <TextBlock Text="Description:" FontWeight="SemiBold"/>
-        <TextBox x:Name="AIDescription" Margin="0,5,0,15" Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
+        <TextBlock Text="AI Logo Preview:" FontWeight="SemiBold"/>
+        <Border BorderBrush="Gray" BorderThickness="1" Width="100" Height="100" Margin="0,5,0,15">
+            <Image x:Name="AILogoPreview" Height="100" Width="100" Margin="0,0,0,15" Source="pack://application:,,,/logo.ico"  />
+        </Border>
         <Button Content="Add AI" Width="100" Height="30" HorizontalAlignment="Center" Click="AddAIButton_Click"/>
     </StackPanel>
 </Window>

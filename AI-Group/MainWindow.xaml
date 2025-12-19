@@ -34,11 +34,10 @@
             </ScrollViewer>
 
             <DockPanel x:Name="MainDockPanel"  Grid.Column="1" Grid.Row="1">
-                <DockPanel.Background>
-                    <ImageBrush/>
-                </DockPanel.Background>
-                <Label Content="欢迎使用 AI Group" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Label x:Name="lblWelcome" Content="欢迎使用 AI Group" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
             </DockPanel>
+
         </Grid>
 
     </DockPanel>

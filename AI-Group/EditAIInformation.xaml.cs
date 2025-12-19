@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Windows;
 
 namespace AI_Group
@@ -24,7 +25,6 @@ namespace AI_Group
                     AIName.Text,
                     AIUrl.Text,
                     AILogoUrl.Text == "" ? "https://icon.bqb.cool/?url=" + AIUrl.Text : AILogoUrl.Text,
-                AIDescription.Text
             };
                 OnAIAdded?.Invoke(data);
                 this.Close();
@@ -35,6 +35,27 @@ namespace AI_Group
                 MessageBox.Show("AI added Failed");
             }
 
+        }
+
+        private void AIUrl_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // 正则表达式模式 (关键！)
+            string pattern = @"(?:https?://)?([^/#?]+)";
+
+            var tb = sender as System.Windows.Controls.TextBox;
+            var inputUrl = tb.Text.Trim();
+
+            Match match = Regex.Match(inputUrl, pattern);
+            if (match.Success)
+            {
+                Console.WriteLine($"URL: {inputUrl} → 域名: {match.Groups[1].Value}");
+                AILogoUrl.Text = "https://favicon.im/" + match.Groups[1].Value;
+                AILogoPreview.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(AILogoUrl.Text));
+            }
+            else
+            {
+                Console.WriteLine($"URL: {inputUrl} → 匹配失败！");
+            }
         }
     }
 }
