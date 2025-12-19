@@ -22,7 +22,12 @@ namespace AI_Group
         public MainWindow()
         {
             InitializeComponent();
+            InitializaConfigFile();
+            AddAIToUI();
+        }
 
+        private void InitializaConfigFile()
+        {
             if (!File.Exists(_aiDataFilePath))
             {
                 var aiElement = new XElement("AI",
@@ -33,7 +38,6 @@ namespace AI_Group
                 var doc = new XDocument(new XElement("Settings", new XElement("AIs", aiElement)));
                 doc.Save(_aiDataFilePath);
             }
-            AddAIToUI();
         }
 
         private async void AIButton_Click(object sender, RoutedEventArgs e)
@@ -74,22 +78,14 @@ namespace AI_Group
                     //添加到主面板
                     MainDockPanel.Children.Remove(lblWelcome);
                     wv.Visibility = Visibility.Visible;
-
-
                 };
-
-
             }
             else//表示该webview已加载
             {
-                var elementsToRemove = MainDockPanel.Children.OfType<WebView2>().ToList();
-
                 wv = _webViewDictLoaded[buttonTag];
                 //添加到主面板
                 MainDockPanel.Children.Add(wv);
             }
-
-
         }
 
         private void AddAIToUI()
@@ -129,6 +125,49 @@ namespace AI_Group
                         {
                             aiButton.Content = name;
                         }
+
+                        aiButton.ContextMenu = new ContextMenu();
+                        MenuItem openMenuItem = new MenuItem { Header = "打开" };
+                        MenuItem deleteMenuItem = new MenuItem { Header = "删除" };
+                        MenuItem closeMenuItem = new MenuItem { Header = "关闭" };
+                        openMenuItem.Click += (s, e) =>
+                        {
+                            AIButton_Click(aiButton, null);
+                        };
+
+                        deleteMenuItem.Click += (s, e) =>
+                        {
+                            // 删除按钮的点击事件
+                            spAIButtons.Children.Remove(aiButton);
+                            _aiUrlDict.Remove(aiButton.Tag.ToString());
+                            if (_webViewDictUnload.ContainsKey(aiButton.Tag.ToString()))
+                                _webViewDictUnload.Remove(aiButton.Tag.ToString());
+                            if (_webViewDictLoaded.ContainsKey(aiButton.Tag.ToString()))
+                                _webViewDictLoaded.Remove(aiButton.Tag.ToString());
+                            RemoveAIFromXML(_aiDataFilePath, aiButton.Tag.ToString());
+                        };
+                        closeMenuItem.Click += (s, e) =>
+                        {
+                            // 关闭按钮的点击事件
+                            if (_webViewDictLoaded.ContainsKey(aiButton.Tag.ToString()))
+                            {
+                                var wv = _webViewDictLoaded[aiButton.Tag.ToString()];
+                                if (MainDockPanel.Children.Contains(wv))
+                                {
+                                    MainDockPanel.Children.Remove(wv);
+                                    lblWelcome.Content = "欢迎使用 AI-Group！请选择左侧的 AI 聊天工具开始使用。";
+                                    MainDockPanel.Children.Add(lblWelcome);
+                                }
+                                //把关闭的webview移到未加载字典
+                                _webViewDictUnload.Add(aiButton.Tag.ToString(), wv);
+                                _webViewDictLoaded.Remove(aiButton.Tag.ToString());
+                            }
+                        };
+
+                        aiButton.ContextMenu.Items.Add(openMenuItem);
+                        aiButton.ContextMenu.Items.Add(deleteMenuItem);
+                        aiButton.ContextMenu.Items.Add(closeMenuItem);
+
                         spAIButtons.Children.Insert(spAIButtons.Children.Count - 1, aiButton); // 新按钮插入到最前面
                         aiButton.Click += AIButton_Click;
                     }
@@ -214,15 +253,12 @@ namespace AI_Group
             try
             {
                 var doc = XDocument.Load(filePath);
-                var root = doc.Element("AIs");
-                foreach (var existingAI in root.Elements("AI"))
+                var allAI = doc.Descendants("AI");
+                var aiToRemove = allAI.FirstOrDefault(ai => ai.Element("Name")?.Value == name);
+                if (aiToRemove != null)
                 {
-                    if (existingAI.Element("Name")?.Value == name)
-                    {
-                        existingAI.Remove();
-                        doc.Save(filePath);
-                        break;
-                    }
+                    aiToRemove.Remove();
+                    doc.Save(filePath);
                 }
                 return true;
             }

@@ -21,10 +21,6 @@ namespace AI_Group
         {
             // 创建但不立即显示主窗口
             _mainWindow = new MainWindow();
-            if (Debugger.IsAttached)
-            {
-                // _mainWindow.Show();
-            }
             // 订阅窗口的SourceInitialized事件，确保句柄已创建
             _mainWindow.SourceInitialized += MainWindow_SourceInitialized;
             var helper = new WindowInteropHelper(_mainWindow);

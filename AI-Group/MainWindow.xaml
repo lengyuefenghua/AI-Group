@@ -24,7 +24,8 @@
             <Border Grid.Row="1" Background="#f4f4f4"/>
             <!-- 侧边栏：垂直StackPanel（线性排列，方便控制按钮顺序） -->
             <!-- 可选加ScrollViewer，按钮过多时滚动 -->
-            <ScrollViewer Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+
                 <StackPanel x:Name="spAIButtons">
                     <!-- 在这里添加按钮 -->
                     <Button Content="+" Height="45" Width="45" FontSize="32" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Style="{StaticResource Normal}" Click="AddAIButton_Click" />
@@ -34,8 +35,7 @@
             </ScrollViewer>
 
             <DockPanel x:Name="MainDockPanel"  Grid.Column="1" Grid.Row="1">
-                <Label x:Name="lblWelcome" Content="欢迎使用 AI Group" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
+                <Label x:Name="lblWelcome" Content="欢迎使用 AI-Group！请选择左侧的 AI 聊天工具开始使用。" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </DockPanel>
 
         </Grid>
