@@ -1,4 +1,4 @@
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,6 +45,8 @@ namespace AI_Group
 
         private async void AIUrl_LostFocus(object sender, RoutedEventArgs e)
         {
+            if (String.IsNullOrWhiteSpace(AIUrl.Text))
+                return;
             // 正则表达式模式 (关键！)
             var res = await DownloadWebsiteLogoToFile(AIUrl.Text, ".\\Icon", AppDomain.CurrentDomain.BaseDirectory + "\\logo.ico");
             AILogoPreview.Source = res.First().Value;

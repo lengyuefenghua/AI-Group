@@ -1,4 +1,4 @@
-using IWshRuntimeLibrary;
+﻿using IWshRuntimeLibrary;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -19,6 +19,18 @@ namespace AI_Group
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+#if !DEBUG
+            Process current = Process.GetCurrentProcess();
+            string processName = current.ProcessName;
+
+            Process[] processes = Process.GetProcessesByName(processName);
+
+            foreach (Process process in processes)
+            {
+                if (process.Id == current.Id) continue;
+                this.Shutdown();
+            }
+#endif 
             // 创建但不立即显示主窗口
             _mainWindow = new MainWindow();
             // 订阅窗口的SourceInitialized事件，确保句柄已创建
@@ -78,20 +90,8 @@ namespace AI_Group
 
             try
             {
-                var uri = new Uri("pack://application:,,,/logo.ico");
-                var resource = System.Windows.Application.GetResourceStream(uri);
-
-                // 尝试加载图标
-                if (resource?.Stream != null)
-                {
-                    // Icon 构造函数接受 Stream
-                    _notifyIcon.Icon = new System.Drawing.Icon(resource.Stream);
-                }
-                else
-                {
-                    // 使用默认图标
-                    _notifyIcon.Icon = System.Drawing.SystemIcons.Application;
-                }
+                 // Icon 构造函数接受 Stream
+                 _notifyIcon.Icon = new System.Drawing.Icon(".\\logo.ico");
             }
             catch
             {
