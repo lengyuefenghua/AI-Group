@@ -13,14 +13,14 @@ AI-Group 是基于 WPF 开发的桌面应用程序，旨在整合主流 AI 聊�
 
 #### 方式1：直接运行
 
-1. 前往 [Releases页面]([Releases · lengyuefenghua/AI-Group](https://github.com/lengyuefenghua/AI-Group/releases))
+1. 前往 [Releases页面]((https://github.com/lengyuefenghua/AI-Group/releases))
 2. 下载最新版本的`AI-Group.zip`
 3. 解压到任意文件夹（比如桌面）
 4. 双击`AI-Group.exe`，无需安装，直接启动
 
 #### 方式2：源码编译
 
-1. 克隆仓库：`git clone https://github.com/你的仓库地址/AI-Group.git`
+1. 克隆仓库：`https://github.com/lengyuefenghua/AI-Group.git`
 2. 用Visual Studio 2019+打开`AI-Group.csproj`
 3. 右键「还原NuGet包」→ 「生成解决方案」
 4. 在`bin/Debug`目录找到`AI-Group.exe`运行
