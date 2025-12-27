@@ -14,9 +14,10 @@
         <TextBlock Text="AI Logo Url:" FontWeight="SemiBold"/>
         <TextBox x:Name="AILogoUrl" Margin="0,5,0,15"/>
         <TextBlock Text="AI Logo Preview:" FontWeight="SemiBold"/>
-        <Border BorderBrush="Gray" BorderThickness="1" Width="100" Height="100" Margin="0,5,0,15">
-            <Image x:Name="AILogoPreview" Height="100" Width="100" Margin="0,0,0,15" Source="pack://application:,,,/logo.ico"  />
+        <Border BorderBrush="Gray" BorderThickness="1" Width="110" Height="110" Margin="10,10,10,10">
+            <Image x:Name="AILogoPreview" Stretch="Uniform" Height="100" Width="100" Margin="0,0,0,0" Source="pack://application:,,,/logo.ico"  />
         </Border>
-        <Button Content="Add AI" Width="100" Height="30" HorizontalAlignment="Center" Click="AddAIButton_Click"/>
+        <Button x:Name="LoadLocalIcon" Content="浏览图标" Width="100" Click="LoadLocalIcon_Click"/>
+        <Button Content="Add AI" Width="100" Height="30" HorizontalAlignment="Center" Click="AddAIButton_Click" Margin="30"/>
     </StackPanel>
 </Window>

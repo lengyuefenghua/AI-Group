@@ -1,8 +1,10 @@
-using Microsoft.Web.WebView2.Wpf;
+﻿using Microsoft.Web.WebView2.Wpf;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -43,6 +45,7 @@ namespace AI_Group
         private async void AIButton_Click(object sender, RoutedEventArgs e)
         {
             string buttonTag = (string)((Button)sender).Tag;
+            Button btn = sender as Button;
             WebView2 wv = null;
             //若已经包含则先移出原有控件
             var chs = MainDockPanel.Children.OfType<UIElement>().ToList();
@@ -65,8 +68,8 @@ namespace AI_Group
                 //先隐藏webview，等待加载完成后再显示
                 wv.Visibility = Visibility.Collapsed;
                 MainDockPanel.Children.Add(wv);
-                MainDockPanel.Children.Add(lblWelcome);
-                lblWelcome.Content = "正在加载 " + _aiUrlDict[buttonTag];
+                LoadingLogo.Source = (btn.Content as Image).Source;
+                LoadingCanvas.Visibility = Visibility.Visible;
                 await wv.EnsureCoreWebView2Async(null);
                 wv.CoreWebView2.Navigate(_aiUrlDict[buttonTag]);
 
@@ -74,9 +77,9 @@ namespace AI_Group
                 //等待导航完成事件
                 wv.CoreWebView2.NavigationCompleted += (s1, ev1) =>
                 {
-                    // 可以在这里处理导航完成后的逻辑
+                    // 隐藏遮罩层
+                    LoadingCanvas.Visibility= Visibility.Collapsed | Visibility.Hidden;
                     //添加到主面板
-                    MainDockPanel.Children.Remove(lblWelcome);
                     wv.Visibility = Visibility.Visible;
                 };
             }
@@ -120,11 +123,6 @@ namespace AI_Group
                             Width = 40,
                             Style = this.TryFindResource("Normal") as Style
                         };
-                        // 设置默认图标
-                        if (!success)
-                        {
-                            aiButton.Content = name;
-                        }
 
                         aiButton.ContextMenu = new ContextMenu();
                         MenuItem openMenuItem = new MenuItem { Header = "打开" };
@@ -275,67 +273,19 @@ namespace AI_Group
         /// <param name="image">目标Image控件</param>
         /// <param name="imageUrl">图片URL（绝对路径/网络地址）</param>
         /// <returns>加载成功返回true，失败返回false</returns>
-        private bool SetIcon(Image image, string imageUrl)
+        private bool SetIcon(Image image, string imagePath)
         {
-            // 入参校验：Image控件不能为空，URL不能为空/空白
-            if (image == null)
-            {
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(imageUrl))
-            {
-                image.Source = null; // 清空原有图片
-                return false;
-            }
-
             try
             {
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-
-                // 核心设置：确保同步加载并缓存，避免异步加载导致的异常捕获失效
-                bitmap.UriSource = new Uri(imageUrl, UriKind.Absolute);
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache; // 忽略缓存，实时检测URL有效性
-
-                // 可选：设置超时（WPF无直接超时，需结合异步，见扩展说明）
-                bitmap.EndInit();
-
-                // 验证图片是否真的加载成功（部分场景EndInit不抛异常，但图片为空）
-                if (bitmap.PixelWidth == 0 || bitmap.PixelHeight == 0)
-                {
-                    image.Source = null;
-                    return false;
-                }
-
-                // 加载成功，设置图片源
-                image.Source = bitmap;
-                return true;
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                imagePath = Path.Combine(baseDir, imagePath);
+                image.Source = new BitmapImage(new Uri(imagePath, UriKind.Absolute));
             }
-            catch (UriFormatException)
+            catch
             {
-                // URL格式错误（如非法字符、未加协议头）
-                image.Source = null;
-                return false;
+                image.Source = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "\\logo.ico", UriKind.Absolute));
             }
-            catch (IOException)
-            {
-                // 网络不可达、URL不存在、文件无法读取等IO异常（URL不可用的核心场景）
-                image.Source = null;
-                return false;
-            }
-            catch (NotSupportedException)
-            {
-                // 不支持的URL协议、图片格式等
-                image.Source = null;
-                return false;
-            }
-            catch (Exception)
-            {
-                // 兜底捕获其他未知异常（如权限问题）
-                image.Source = null;
-                return false;
-            }
+            return true;
         }
     }
 }

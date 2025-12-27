@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Settings>
+  <AIs>
+    <AI>
+      <Name>Gemini</Name>
+      <Url>https://gemini.google.com/app?hl=zh-cn</Url>
+      <LogoUrl>Icon\gemini.google.com.ico</LogoUrl>
+    </AI>
+    <AI>
+      <Name>DouBao</Name>
+      <Url>https://www.doubao.com/chat</Url>
+      <LogoUrl>Icon\www.doubao.com.png</LogoUrl>
+    </AI>
+    <AI>
+      <Name>DeepSeek</Name>
+      <Url>https://chat.deepseek.com</Url>
+      <LogoUrl>Icon\chat.deepseek.com.png</LogoUrl>
+    </AI>
+    <AI>
+      <Name>QianWen</Name>
+      <Url>https://www.qianwen.com</Url>
+      <LogoUrl>Icon\www.qianwen.com.png</LogoUrl>
+    </AI>
+  </AIs>
+</Settings>
